@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # tên của deployment
+  name: deployapp
+spec:
+  # # số POD tạo ra
+  replicas: 2
+
+  # thiết lập các POD do deploy quản lý, là POD có nhãn  "app=deployapp"
+  selector:
+    matchLabels:
+      app: deployapp
+
+  # Định nghĩa mẫu POD, khi cần Deploy sử dụng mẫu này để tạo Pod
+  template:
+    metadata:
+      name: ungdungjava
+      labels:
+        app: deployapp
+    spec:
+      containers:
+      - name: ungdungjava
+       # image là 1 app java đã đẩy lên trên docker hub
+        image: manhle98tvtb/java_app1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+          - containerPort: 8080

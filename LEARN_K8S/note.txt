@@ -1,0 +1,83 @@
+
+K8S SETUP
+
+# tạo image từ Dockerfile
+docker build -t manhle98tvtb/java_app1 .
+
+start nginx                   # bật nginx
+nginx -s stop               # tắt nginx
+nginx -s reload           # tải lại cấu hình nginx (khi file cấu hình thay đổi và bạn muốn apply sự thay đổi đó luôn)
+
+remove containerd cũ
+yum update
+sudo yum remove containerd 
+sudo yum install containerd.io -y
+sudo rm /etc/containerd/config.toml
+systemctl restart containerd
+
+//khới tạo một kubelet cluster
+kubeadm init --apiserver-advertise-address=172.16.10.100 --pod-network-cidr=192.168.0.0/16
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+tạo pod plugin network
+kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+
+# Thông tin cluster
+kubectl cluster-info
+# Các node trong cluster
+kubectl get nodes
+# Các pod đang chạy trong tất cả các namespace
+kubectl get pods -A
+
+lấy token để join node worker
+kubeadm token create --print-join-command
+
+================================================================
+Tao dashboard
+
+kubectl apply -f dashboard-v2-beta6.yaml
+
+kubectl get po -n kubernetes-dashboard
+
+openssl req -nodes -newkey rsa:2048 -keyout certs/dashboard.key -out certs/dashboard.csr -subj "/C=/ST=/L=/O=/OU=/CN=kubernetes-dashboard"
+
+openssl x509 -req -sha256 -days 365 -in certs/dashboard.csr -signkey certs/dashboard.key -out certs/dashboard.crt
+
+kubectl create secret generic kubernetes-dashboard-certs --from-file=certs -n kubernetes-dashboard
+
+=============================================================
+Fix docker
+sudo yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+sudo systemctl start docker
+
+=============================================================
+kiểm tra thông tin
+
+kubectl get node -o wide
+kubectl get pod -o wide
+kubectl get service -o wide
+kubectl get deploy
+kubectl get service
+kubectl get all -o wide
+kubectl logs --follow <tên pod>
+
+mestric server
+
+kubectl top no
+kubectl top pod
+
+
+xóa 1 thành phần
+
+kubectl delete pod ten_pod
+kubectl delete deploy/<ten deployment>
+kubectl delete service <ten service>
+kubectl delete node <node name>
+
+xóa cứng 1 thành phần 
+kubectl delete pod deployapp-656d4f5f5d-99z2h --force --namespace  default
+

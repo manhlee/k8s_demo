@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svcdeployapp
+spec:
+  selector:
+  #nhãn của pod làm endpoint
+     app: deployapp
+     #kiểu NodePort để có thể truy cập từ bên ngoài cluster
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 31808
